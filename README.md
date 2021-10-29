@@ -1,2 +1,2 @@
 # 4061PAs
-4061 PAs
+Repository for all CSCI 4061 Projects.
