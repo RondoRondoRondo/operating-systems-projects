@@ -43,6 +43,14 @@ int main(int argc, char** argv){
 	
 	//Read pipes of all children and print to stdout
 	//Assumption : Pipe never gets full
+	for(int i=0;i<nChildren;i++){
+		char buffer[1001];
+		childRead = read(fds[i][0],buffer,1001);
+		if(childRead > 0){
+			write(STDOUT_FILENO,buffer,strlen(buffer));
+		}
+	}
+	
 	
 	return 0;
 }
