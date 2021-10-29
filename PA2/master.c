@@ -52,7 +52,7 @@ int main(int argc, char** argv){
 			}
 		}
 		else{
-			searchPatternInFile(path,pattern);
+			
 		}
 	}
 for(int i=0;i<nChildren,i++){
