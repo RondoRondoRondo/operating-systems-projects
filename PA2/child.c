@@ -22,17 +22,20 @@ void dirTraverse(const char *name, char * pattern)
 {
 	DIR *dir = opendir(name);
 	struct dirent *entry;
-	struct stat buf;
-	
+
 	//Recursively traverse the directory and call SearchForPattern when neccessary
 	while((entry = readdir(dir))!=NULL){
 		char fpath[100];
 		strcpy(fpath,name);
 		strcat(fpath,"/");
-		strcat(fpath,entry->dir_name);
-
-		searchPatternInFile(fpath,pattern);
+		strcat(fpath,entry->d_name);
+		if(entry->d_type == DT_REG){
+			searchPatternInFile(fpath,pattern);
+		}else if(entry->d_type == DT_DIR){
+			dirTraverse(fpath,pattern);
+		}
 	}
+	closedir(dir);
 }
 
 int main(int argc, char** argv){
