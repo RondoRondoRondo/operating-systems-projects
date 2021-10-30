@@ -28,7 +28,11 @@ void searchPatternInFile(char* path, char* pattern){
 	char buffer[1001];
 	while(fgets(buffer, 1000, fp) != NULL){
 		if(strstr(buffer,pattern) != NULL){
-			printf("%s : %s", path, buffer);
+			char writebuf[1001];
+			strcpy(writebuf,path);
+			strcat(writebuf," : ");
+			strcat(writebuf,buffer);
+			write(stdout, writebuf, strlen(buffer));
 		}
 	}
 
