@@ -19,12 +19,12 @@ void parse(char *line){
 
 // consumer function
 void *consumer(void *arg){
-    
+    printf("consumer %d\n", *(int *)arg);
     //TODO: keep reading from queue and process the data
     // feel free to change
-    while(1){
-        //parse();
-    }
+    // while(1){
+    //     //parse();
+    // }
     
     return NULL; 
 }
