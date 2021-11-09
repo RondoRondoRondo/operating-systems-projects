@@ -7,4 +7,4 @@ Plan:
   -Christian; Building of c files and write ups.
   -Nolan; Building of c files and compiling/testing of the code. 
 Screenshot of Terminal:
-// ![screenshot](terminal.png)
+![screenshot](terminal.png)
