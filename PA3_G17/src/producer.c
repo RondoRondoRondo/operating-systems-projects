@@ -8,10 +8,10 @@ extern sem_t sem_cond;
  * Producer thread will read from the file and write data to 
  * the end of the shared queue
  */
-typedef struct packet {
-    char *dataLine;
-    struct packet *next;
-} packets;
+// typedef struct packet {
+//     char *dataLine;
+//     struct packet *next;
+// } packets;
 
 // int isempty(queue *p){
 //     return (p->next == NULL);
@@ -50,7 +50,20 @@ void *producer(char *file, int nconsumers){
         sem_post(&sem_cond);
     }
 
-    for()
+    for(int i = 0; i < nconsumers; i++){
+        packets *eofPacket = malloc(sizeof(packets));
+        eofPacket->dataLine = "EOF";
+        sem_wait(&sem_mutex);
+        if(back == NULL){
+            front = eofPacket;
+            back = eofPacket;
+        }else{
+            back->next = eofPacket;
+            back = back->next;
+        }
+        sem_post(&sem_mutex);
+        sem_post(&sem_cond);
+    }
     // cleanup and exit
     fclose(fp);
 

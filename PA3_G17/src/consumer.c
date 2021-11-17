@@ -44,15 +44,17 @@ void *consumer(void *arg){
     while(1){
         sem_wait(&sem_cond);
         sem_wait(&sem_mutex);
-        strcpy(linebuf, front->UNDEFINEDVARNAME);
+        strcpy(linebuf, front->dataLine);
         if(strstr(linebuf, "EOF") != NULL){
-            //might require frees and memory cleanup before rejoining main thread
+            packets *temp = front;
+            front = front->next;
+            free(temp);
+            sem_post(&sem_mutex);
             return NULL;
         }
-        //attempt at mem freeing
-        //packet *temp = front;
-        front = front->VARNAMEFORNEXT;
-        //free(temp);
+        packets *temp = front;
+        front = front->next;
+        free(temp);
         sem_post(&sem_mutex);
         parse(linebuf);
     }

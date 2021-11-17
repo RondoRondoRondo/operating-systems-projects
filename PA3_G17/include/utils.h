@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <semaphore.h>
 
 #define chunkSize 1024
 #define acctsNum 1000
@@ -49,6 +50,13 @@ void writeLineToFile(char *filepath, char *line);
 void bookeepingCode();
 
 /* other function declaration */
+typedef struct packet {
+    char *dataLine;
+    struct packet *next;
+} packets;
 
+sem_t sem_mutex;
+sem_t sem_mutex2
+sem_t sem_cond;
 
 #endif
