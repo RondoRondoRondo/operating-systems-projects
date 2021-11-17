@@ -14,9 +14,17 @@ sem_t sem_cond;
  * The path name should be output/result.txt
  */
 void writeBalanceToFiles(void) {
+    FILE * fp;
+    fp = open(output/result.txt,"w");
+    float total;
     // TODO: write balance for each customer 
-    
     // TODO: write total balance change
+    for(int i = 0; i < acctsNum; i++){
+        fprintf(fp,i,balance[i]);
+        total += balance[i];
+    }
+    fprintf(fp,"All: ",total);
+    fclose(fp);
 }
 
 int main(int argc, char *argv[]){
