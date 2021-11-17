@@ -15,15 +15,15 @@ sem_t sem_cond;
  */
 void writeBalanceToFiles(void) {
     FILE * fp;
-    fp = open(output/result.txt,"w");
-    float total;
+    fp = open(finalDir,"w");
+    float total = 0.0;
     // TODO: write balance for each customer 
     // TODO: write total balance change
     for(int i = 0; i < acctsNum; i++){
-        fprintf(fp,i,balance[i]);
+        fprintf(fp,"%d\t%lf\n",i,balance[i]);
         total += balance[i];
     }
-    fprintf(fp,"All: ",total);
+    fprintf(fp,"All: \t%lf\n",total);
     fclose(fp);
 }
 
@@ -39,7 +39,10 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
     }
     //inputFile check should be done once file gets opened in producer
-    
+    char option[5] = "-p";
+    if(strcmp(argv[4], option) == 0){
+        log_option = 1;
+    }
     bookeepingCode();
     
     //TODO: Initialize global variables, like shared queue

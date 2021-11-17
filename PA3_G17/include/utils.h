@@ -53,10 +53,11 @@ void bookeepingCode();
 typedef struct packet {
     char *dataLine;
     struct packet *next;
+    int linenum;
 } packets;
 
 sem_t sem_mutex;
-sem_t sem_mutex2
+sem_t sem_mutex2;
 sem_t sem_cond;
-
+int log_option = 0;
 #endif

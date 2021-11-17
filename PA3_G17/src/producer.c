@@ -18,7 +18,16 @@ extern sem_t sem_cond;
 // }
 
 void *producer(char *file, int nconsumers){
-    printf("producer\n");
+    // if(log_option == 1){
+    //     FILE * fpl;
+    //     fpl = fopen("output/log.txt", "w");
+    //     if(fpl == NULL){
+    //         fprintf(stderr,"Error opening log file\n");
+    //         return;
+    //     }
+    //     fprintf(fpl,"producer\n");
+    //     fflush(fpl);
+    // }
     
     //TODO: open the file and read its content line by line
     //Send data to the shared queue
@@ -34,10 +43,16 @@ void *producer(char *file, int nconsumers){
         return;
     }
 
+    int linecounter = 0;
     while((read = getline(line, &len, fp)) != -1){
+        // if(log_option == 1){
+        //     fprintf(fpl,"producer: line %d\n", linecounter);
+        //     fflush(fpl);
+        // }
         packets *newPacket = NULL; 
         newPacket = malloc(sizeof(packets));
         strcpy(newPacket->dataLine, line);
+        newPacket->linenum = linecounter;
         sem_wait(&sem_mutex);
         if(back == NULL){
             front = newPacket;
@@ -48,7 +63,12 @@ void *producer(char *file, int nconsumers){
         }
         sem_post(&sem_mutex);
         sem_post(&sem_cond);
+        linecounter++;
     }
+    
+    // if(log_option == 1){
+    //         fclose(fpl);
+    // }
 
     for(int i = 0; i < nconsumers; i++){
         packets *eofPacket = malloc(sizeof(packets));
