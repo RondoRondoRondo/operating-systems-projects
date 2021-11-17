@@ -24,7 +24,7 @@ void *producer(void *arg){
     //Send data to the shared queue
     //When reaching the end of the file, send EOF message
     FILE * fp;
-    char * line;
+    char line[chunkSize];
     size_t len = 0;
     ssize_t read;
 

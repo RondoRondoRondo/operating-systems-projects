@@ -1,6 +1,14 @@
 #include "header.h"
 
 #define NCONSUMERS 3
+
+packets *front = NULL;
+packets *back = NULL;
+double balance[acctsNum];
+sem_t sem_mutex;
+sem_t sem_mutex2
+sem_t sem_cond;
+
 /**
  * Write final balance to a single file.
  * The path name should be output/result.txt
@@ -14,10 +22,23 @@ void writeBalanceToFiles(void) {
 int main(int argc, char *argv[]){
     
     //TODO: Argument check
-
+    if(argc < 3){
+		fprintf(stderr,"Usage: ./bank #consumers inputFile [option] [#queueSize] \n");
+		exit(EXIT_FAILURE);
+	}
+    if(argv[1] < 0 || argv[1] > 999){
+        fprintf(stderr,"Usage: ./bank #consumers inputFile [option] [#queueSize] \n 0 <= #consumers <= 999");
+		exit(EXIT_FAILURE);
+    }
+    //inputFile check should be done once file gets opened in producer
+    
     bookeepingCode();
     
     //TODO: Initialize global variables, like shared queue
+        //done above at top of file since they will be global variables
+    sem_init(&sem_mutex, 0, 1);
+    sem_init(&sem_mutex2, 0, 1);
+    sem_init(&sem_cond, 0, 0);
     
     //TODO: create producer and consumer threads
     pthread_t prodtid;
