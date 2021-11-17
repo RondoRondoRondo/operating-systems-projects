@@ -14,10 +14,25 @@ sem_t sem_cond;
  * The path name should be output/result.txt
  */
 
-// create output directory for writeBalanceToFiles
+// create and delete output directory for writeBalanceToFiles
+/*
 void _createOutputDir(){ 
     mkdir("output", ACCESSPERMS);
 }
+void _removeOutputDir(){
+    pid_t pid = fork();
+    if(pid == 0){
+        char *argv[] = {"rm", "-rf", "output", NULL};
+        if (execvp(*argv, argv) < 0) {
+            printf("ERROR: exec failed\n");
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_SUCCESS);
+    } else{
+        wait(NULL);
+    }
+}
+*/
 
 void writeBalanceToFiles(void) {
     
@@ -28,7 +43,7 @@ void writeBalanceToFiles(void) {
         printf("ERROR: Cannot open the file %s\n", fp);
         fflush(stdout);
         exit(EXIT_FAILURE);
-        
+
     // TODO: write balance for each customer 
     // TODO: write total balance change
     for(int i = 0; i < acctsNum; i++){
