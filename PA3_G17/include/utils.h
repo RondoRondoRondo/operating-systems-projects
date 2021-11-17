@@ -59,5 +59,5 @@ typedef struct packet {
 sem_t sem_mutex;
 sem_t sem_mutex2;
 sem_t sem_cond;
-int log_option = 0;
+//int log_option;
 #endif

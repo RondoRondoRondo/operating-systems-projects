@@ -2,7 +2,8 @@
 extern packets *front;
 extern packets *back;
 extern sem_t sem_mutex;
-extern sem_t sem_cond; 
+extern sem_t sem_cond;
+//extern int log_option; 
 /**
  *
  * Producer thread will read from the file and write data to 
@@ -40,7 +41,7 @@ void *producer(char *file, int nconsumers){
     fp = fopen(file, "r");
     if(fp == NULL){
         fprintf(stderr,"Error opening file: %s \n",file);
-        return;
+        return NULL;
     }
 
     int linecounter = 0;

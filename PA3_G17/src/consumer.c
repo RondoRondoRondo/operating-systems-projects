@@ -7,6 +7,7 @@ double balance[acctsNum];
 extern sem_t sem_mutex;
 extern sem_t sem_mutex2;
 extern sem_t sem_cond;
+//extern int log_option;
 /**
  * parse lines from the queue, calculate balance change
  * and update to global array

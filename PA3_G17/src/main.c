@@ -6,8 +6,9 @@ packets *front = NULL;
 packets *back = NULL;
 double balance[acctsNum];
 sem_t sem_mutex;
-sem_t sem_mutex2
+sem_t sem_mutex2;
 sem_t sem_cond;
+//extern int log_option;
 
 /**
  * Write final balance to a single file.
@@ -38,12 +39,11 @@ void writeBalanceToFiles(void) {
     
     float total;
     FILE * fp;
-    int fp = open(output/result.txt,"w");
-    if (fd < 0){
-        printf("ERROR: Cannot open the file %s\n", fp);
-        fflush(stdout);
-        exit(EXIT_FAILURE);
-
+    fp = fopen("output/result.txt","w");
+    if (fp == NULL){
+        fprintf(stderr,"Error opening output/result.txt\n");
+        return;
+    }
     // TODO: write balance for each customer 
     // TODO: write total balance change
     for(int i = 0; i < acctsNum; i++){
@@ -61,15 +61,17 @@ int main(int argc, char *argv[]){
 		fprintf(stderr,"Usage: ./bank #consumers inputFile [option] [#queueSize] \n");
 		exit(EXIT_FAILURE);
 	}
-    if(argv[1] < 0 || argv[1] > 999){
+    if(atoi(argv[1]) < 0 || atoi(argv[1]) > 999){
         fprintf(stderr,"Usage: ./bank #consumers inputFile [option] [#queueSize] \n 0 <= #consumers <= 999");
 		exit(EXIT_FAILURE);
     }
     //inputFile check should be done once file gets opened in producer
-    char option[5] = "-p";
-    if(strcmp(argv[4], option) == 0){
-        log_option = 1;
-    }
+    
+    // log_option = 0;
+    // char option[5] = "-p";
+    // if(strcmp(argv[3], option) == 0){
+    //     log_option = 1;
+    // }
     bookeepingCode();
     
     //TODO: Initialize global variables, like shared queue
@@ -82,8 +84,8 @@ int main(int argc, char *argv[]){
     pthread_t prodtid;
     pthread_t consume_thread[NCONSUMERS];
 
-    char *filename = strdup(argv[3]);
-    if(pthread_create(&prodtid, NULL, producer, filename) != 0) {
+    //char *filename = strdup(argv[3]);
+    if(pthread_create(&prodtid, NULL, producer, argv[2]) != 0) {
             printf("Producer thread failed to create\n");
     }else{
         printf("launching producer\n");
