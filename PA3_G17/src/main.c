@@ -13,10 +13,22 @@ sem_t sem_cond;
  * Write final balance to a single file.
  * The path name should be output/result.txt
  */
+
+// create output directory for writeBalanceToFiles
+void _createOutputDir(){ 
+    mkdir("output", ACCESSPERMS);
+}
+
 void writeBalanceToFiles(void) {
-    FILE * fp;
-    fp = open(output/result.txt,"w");
+    
     float total;
+    FILE * fp;
+    int fp = open(output/result.txt,"w");
+    if (fd < 0){
+        printf("ERROR: Cannot open the file %s\n", fp);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
+        
     // TODO: write balance for each customer 
     // TODO: write total balance change
     for(int i = 0; i < acctsNum; i++){
