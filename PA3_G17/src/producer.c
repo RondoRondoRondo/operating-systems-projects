@@ -9,20 +9,12 @@ extern sem_t sem_cond;
  * the end of the shared queue
  */
 struct packets {
-    char dataLine;
-    packets *front;
-    packets *back;
-    int count;
+    char *dataLine;
+    packets *next;
 } typedef struct packets queue;
 
-void initialize_queue(queue *p){
-    p->count = 0;
-    p->front = NULL;
-    p->back = NULL;
-}
-
 int isempty(queue *p){
-    return (p->back == NULL);
+    return (p->next == NULL);
 }
 
 void *producer(void *arg){
@@ -42,17 +34,13 @@ void *producer(void *arg){
         return;
     }
 
-    while((read = getline(&line, &len, fp)) != -1) {
-        node *newPacket; 
-        newPacket = malloc(sizeof(node));
-        newPacket -> line = read;
-        if(!isempty(p){
-            p->back->next = newPacket;
-            p->back = newPacket;
-            p->count++;
-        }
-        else{
-            p->front = q->back = newPacket;
+    while((read = getline(&line, &len, fp)) != -1){
+        packets *newPacket; 
+        read = malloc(sizeof(line));
+        newPacket = malloc(sizeof(packets));
+        newPacket->dataLine = read;
+        if(front == NULL){
+            front = newPacket;
         }
     }
 
