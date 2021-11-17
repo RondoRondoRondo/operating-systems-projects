@@ -30,7 +30,7 @@ void *producer(char *file, int nconsumers){
 
     fp = fopen(file, "r");
     if(fp == NULL){
-        fprintf(stderr,"Error opening file: %s \n",arg);
+        fprintf(stderr,"Error opening file: %s \n",file);
         return;
     }
 
