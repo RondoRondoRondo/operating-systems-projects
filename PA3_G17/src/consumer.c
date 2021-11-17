@@ -13,9 +13,8 @@ extern sem_t sem_cond;
  */
 void parse(char *line){
     int customer_id;
-    float *transaction;
-    float transaction_total;
-    int i = 0; 
+    float transaction;
+    float transaction_total = 0;
     // TODO: get customer id
     // TODO: sum up transactions
     // TODO: update the global array
@@ -24,12 +23,9 @@ void parse(char *line){
     customer_id = atoi(tmp);
 
     while(tmp != NULL){
-        i++;
         tmp = strtok(NULL,",");
-        transaction[i] = atof(tmp);
-    }
-    for(int i = 0; i < length(transaction); i++){
-        transaction_total += transaction[i];
+        transaction = atof(tmp);
+        transaction_total += transaction;
     }
 
     pthread_mutex_lock(&lock);
