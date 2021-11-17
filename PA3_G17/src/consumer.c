@@ -28,12 +28,9 @@ void parse(char *line){
         transaction_total += transaction;
     }
 
-    pthread_mutex_lock(&lock);
-    balance[customer_id] = transaction_total;
-    pthread_mutex_unlock(&lock);
-    
-
     sem_wait(&sem_mutex2);
+    balance[customer_id] += transaction_total;
+    sem_post(&sem_mutex2);
 
 }
 

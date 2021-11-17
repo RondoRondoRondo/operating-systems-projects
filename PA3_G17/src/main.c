@@ -44,8 +44,8 @@ int main(int argc, char *argv[]){
     pthread_t prodtid;
     pthread_t consume_thread[NCONSUMERS];
 
-
-    if(pthread_create(&prodtid, NULL, producer, 0) != 0) {
+    char *filename = strdup(argv[3]);
+    if(pthread_create(&prodtid, NULL, producer, filename) != 0) {
             printf("Producer thread failed to create\n");
     }else{
         printf("launching producer\n");
