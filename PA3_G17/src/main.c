@@ -15,7 +15,7 @@ sem_t sem_cond;
  */
 
 // create and delete output directory for writeBalanceToFiles
-/*
+
 void _createOutputDir(){ 
     mkdir("output", ACCESSPERMS);
 }
@@ -32,18 +32,18 @@ void _removeOutputDir(){
         wait(NULL);
     }
 }
-*/
+
 
 void writeBalanceToFiles(void) {
     
     float total;
     FILE * fp;
-    int fp = open(output/result.txt,"w");
-    if (fd < 0){
+    int fp = open(finalDir,"w");
+    if (fp == NULL){
         printf("ERROR: Cannot open the file %s\n", fp);
         fflush(stdout);
         exit(EXIT_FAILURE);
-
+    }
     // TODO: write balance for each customer 
     // TODO: write total balance change
     for(int i = 0; i < acctsNum; i++){
@@ -70,6 +70,8 @@ int main(int argc, char *argv[]){
     if(strcmp(argv[4], option) == 0){
         log_option = 1;
     }
+
+    //remove outputDir, sleep(1), create outputDir
     bookeepingCode();
     
     //TODO: Initialize global variables, like shared queue
