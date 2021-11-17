@@ -16,33 +16,34 @@ sem_t sem_cond;
  */
 
 // create and delete output directory for writeBalanceToFiles
-/*
-void _createOutputDir(){ 
-    mkdir("output", ACCESSPERMS);
-}
-void _removeOutputDir(){
-    pid_t pid = fork();
-    if(pid == 0){
-        char *argv[] = {"rm", "-rf", "output", NULL};
-        if (execvp(*argv, argv) < 0) {
-            printf("ERROR: exec failed\n");
-            exit(EXIT_FAILURE);
-        }
-        exit(EXIT_SUCCESS);
-    } else{
-        wait(NULL);
-    }
-}
-*/
+
+// void _createOutputDir(){ 
+//     mkdir("output", ACCESSPERMS);
+// }
+// void _removeOutputDir(){
+//     pid_t pid = fork();
+//     if(pid == 0){
+//         char *argv[] = {"rm", "-rf", "output", NULL};
+//         if (execvp(*argv, argv) < 0) {
+//             printf("ERROR: exec failed\n");
+//             exit(EXIT_FAILURE);
+//         }
+//         exit(EXIT_SUCCESS);
+//     } else{
+//         wait(NULL);
+//     }
+// }
+
 
 void writeBalanceToFiles(void) {
     
     float total;
     FILE * fp;
-    fp = fopen("output/result.txt","w");
+    fp = fopen(finalDir,"w");
     if (fp == NULL){
-        fprintf(stderr,"Error opening output/result.txt\n");
-        return;
+        fprintf(stderr,"ERROR: Cannot open the file %s\n", finalDir);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
     }
     // TODO: write balance for each customer 
     // TODO: write total balance change
