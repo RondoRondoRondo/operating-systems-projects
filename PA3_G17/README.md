@@ -13,5 +13,6 @@
     - N/A
 * How to compile and run your program
     - "make" to compile the files. 
-    - "make run" to run the files. 
-    - "make runN" where N is a test number to run a specific input. 
+    - "make test" to run all tests.  
+    - "make runN" where N is an integer(1-5) to run a specific input. 
+    - "make tN" where N is an integer(1-5) to run a specific test. 
