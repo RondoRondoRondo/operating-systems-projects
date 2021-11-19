@@ -3,6 +3,6 @@
 
 #include "utils.h"
 
-void *producer(char *file, int nconsumers);
+void *producer(char *file);
 
 #endif

@@ -51,13 +51,17 @@ void bookeepingCode();
 
 /* other function declaration */
 typedef struct packet {
-    char *dataLine;
+    char dataLine[chunkSize];
     struct packet *next;
     int linenum;
 } packets;
 
+//global variables
 sem_t sem_mutex;
 sem_t sem_mutex2;
 sem_t sem_cond;
-//int log_option;
+sem_t sem_logmutex;
+int nconsumers;
+int log_option;
+FILE * fpl;
 #endif

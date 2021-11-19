@@ -3,6 +3,6 @@
 
 #include "utils.h"
 
-void *consumer(void *arg);
+void *consumer(int arg);
 
 #endif
