@@ -6,11 +6,12 @@
 * Whether to complete the extra task
     - No.
 * Members’ individual contributions
-    - Both: Building of all c files. 
+    - Both: Building of c files. 
     - Christian: Readme.md
     - Nolan: Debugged and tested the code. 
 * Any assumptions outside this document
     - N/A
 * How to compile and run your program
-    - MAKE to compile the files. 
-    - MAKE RUN to run the files. 
+    - "make" to compile the files. 
+    - "make run" to run the files. 
+    - "make runN" where N is a test number to run a specific input. 
