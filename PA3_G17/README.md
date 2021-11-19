@@ -1,14 +1,14 @@
 # Project #3 – Multithreading
-* Lab machine name used to test your program
+* Test Machine: csel-kh1250
 *  Group 17
     - Christian Rondestvedt ronde021
     - Nolan Kelly kell2490
 * Whether to complete the extra task
-    - ...
+    - No.
 * Members’ individual contributions
-    - Both: Building and error checking of all c files. 
+    - Both: Building of all c files. 
     - Christian: Readme.md
-    - Nolan: Compiled and tested the code. 
+    - Nolan: Debugged and tested the code. 
 * Any assumptions outside this document
     - N/A
 * How to compile and run your program
