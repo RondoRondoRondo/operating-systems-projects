@@ -1,5 +1,5 @@
 # Project #3 – Multithreading
-* Test Machine: csel-kh1250
+* Test Machine: csel-kh1250-22
 *  Group 17
     - Christian Rondestvedt ronde021
     - Nolan Kelly kell2490
