@@ -1,7 +1,8 @@
-#include "server.h"
+#include "../include/server.h"
 
+#define LOCALHOST "127.0.0.1"
 #define MAX 80
-#define PORT 8080
+#define PORT 9001795
 #define SA struct sockaddr
 
 void printSyntax(){
@@ -33,11 +34,11 @@ void func(int sockfd) {
 
 int main(int argc, char *argv[]){
     // argument handling
-    if(argc != 4)
-    {
-        printSyntax();
-        return 0;
-    }
+    // if(argc != 4)
+    // {
+    //     printSyntax();
+    //     return 0;
+    // }
 
     // create empty output folder
     bookeepingCode();
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]){
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_addr.s_addr = htonl(LOCALHOST);
     servaddr.sin_port = htons(PORT);
 
     // Binding newly created socket to given IP and verification

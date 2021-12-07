@@ -1,5 +1,10 @@
-#include "client.h"
+#include "../include/client.h"
 
+//copied from lab11
+#define LOCALHOST "127.0.0.1"
+#define MAX 80
+#define PORT 9001795
+#define SA struct sockaddr
 
 //given code
 void printSyntax(){
@@ -38,11 +43,11 @@ void func(int sockfd) {
 
 int main(int argc, char *argv[]){
     // argument handling + given code
-    if(argc != 4)
-    {
-        printSyntax();
-        return 0;
-    }
+    // if(argc != 4)
+    // {
+    //     printSyntax();
+    //     return 0;
+    // }
 
     //COPIED FROM RECITATION 11 CODE
     int sockfd, connfd;
