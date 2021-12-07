@@ -20,7 +20,7 @@ void func(int sockfd) {
             exit(4);
         }
         
-        printf("Enum received: %d\n", mt);
+        //printf("Enum received: %d\n", mt);
         switch (mt){
             case REGISTER:
                 printf("REGISTER : %d\n", mt); 
