@@ -9,23 +9,31 @@ void printSyntax(){
 
 //COPIED FROM RECITATION 11 CODE
 void func(int sockfd) {
-    char *buffer = "Hi Server, What is IP address for google.com?"; //Change or take out
 
-    // TODO: send string (*buffer) to the server
-    if (write(sockfd, buffer, strlen(buffer)) < 0) {
-        perror("Cannot write");
-        exit(3);
+    //write all enums
+    msg_enum mt = REGISTER;
+    while(mt != TERMINATE){
+        if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
+            perror("Cannot write");
+            exit(3);
+        }
+        mt++;
     }
-    printf("%s\n", buffer);
-
-    char recv[1024];
-    memset(recv, 0, sizeof(recv));
-    // TODO: receive message (IP address for google.com) from the server
-    if (read(sockfd, recv, sizeof(recv)) < 0) {
-        perror("cannot read");
-        exit(4);
+    //Write final TERMINATE enum
+    if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
+            perror("Cannot write");
+            exit(3);
     }
-    printf("Google.com IP address: %s\n", recv); //Take out
+    
+    //loop until receiving TERMINATE enum
+    mt = REGISTER;
+    while(mt != TERMINATE){
+        if (read(sockfd, &mt, sizeof(msg_enum)) < 0) {
+            perror("cannot read");
+            exit(4);
+        }
+        printf("Enum received : %d", mt);
+    }
 }
 
 int main(int argc, char *argv[]){
