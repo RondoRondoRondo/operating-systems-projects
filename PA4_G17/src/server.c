@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(LOCALHOST);
+    servaddr.sin_addr.s_addr = inet_addr(LOCALHOST);
     servaddr.sin_port = htons(PORT);
 
     // Binding newly created socket to given IP and verification
