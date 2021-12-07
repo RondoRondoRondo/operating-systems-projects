@@ -11,19 +11,23 @@ void printSyntax(){
 
 // Function designed for chat between client and server.
 void func(int sockfd) {
-    char buffer[MAX];
-    memset(buffer, 0, sizeof(buffer));
-    // TODO: Read message sent by the client
-    read(sockfd, buffer, sizeof(buffer));
+    
+    msg_enum mt = REGISTER;
+    while(mt != TERMINATE){
+        if (read(sockfd, &mt, sizeof(msg_enum)) < 0) {
+            perror("cannot read");
+            exit(4);
+        }
+        
+        printf("Enum received: %d\n", mt);
+        
+        if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
+            perror("Cannot write");
+            exit(3);
+        }
+    }
 
-    printf("Received a question \"%s\" from client.\n", buffer);
-
-    memset(buffer, 0, sizeof(buffer));
-    sprintf(buffer, "%s", GOOGLEIPADDR);
-    // TODO: Send IP address for google.com to the client
-    write(sockfd, buffer, sizeof(buffer));
-
-    printf("Answered \"%s\" to client.\n", buffer);
+    printf("Everything received");
 }
 
 

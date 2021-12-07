@@ -32,7 +32,7 @@ void func(int sockfd) {
             perror("cannot read");
             exit(4);
         }
-        printf("Enum received : %d", mt);
+        printf("Enum received : %d\n", mt);
     }
 }
 
