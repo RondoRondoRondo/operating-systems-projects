@@ -21,6 +21,38 @@ void func(int sockfd) {
         }
         
         printf("Enum received: %d\n", mt);
+        switch (mt){
+            case REGISTER:
+                printf("REGISTER : %d\n", mt); 
+                break;
+            case GET_ACCOUNT_INFO:
+                printf("GET_ACCOUNT_INFO : %d\n", mt); 
+                break;
+            case TRANSACT:
+                printf("TRANSACT : %d\n", mt); 
+                break;
+            case GET_BALANCE:
+                printf("GET_BALANCE : %d\n", mt);
+                break;
+            case ACCOUNT_INFO:
+                printf("ACCOUNT_INFO : %d\n", mt);
+                break;
+            case BALANCE:
+                printf("BALANCE : %d\n", mt);
+                break;
+            case REQUEST_CASH:
+                printf("REQUEST_CASH : %d\n", mt);
+                break;
+            case CASH:
+                printf("CASH : %d\n", mt);
+                break;
+            case ERROR:
+                printf("ERROR : %d\n", mt);
+                break;
+            case TERMINATE:
+                printf("TERMINATE : %d\n", mt);
+                break;
+        }
         
         if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
             perror("Cannot write");
@@ -91,4 +123,3 @@ int main(int argc, char *argv[]){
 
     return 0; 
 }
-
