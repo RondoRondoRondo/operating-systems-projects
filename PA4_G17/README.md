@@ -8,10 +8,12 @@
 * Whether to complete the extra task
   - No.
 * Individual contributions
-  -Both: Constructing of all .c files.
-  -Christian: README and other documentation.
-  -Nolan: Compiled, ran, and tested the code. 
+  - Both: Constructing of all .c files.
+  - Christian: README and other documentation.
+  - Nolan: Compiled, ran, and tested the code. 
 * Any assumptions outside this document
   - No.
 * How to compile and run your program
-  - 
+  - Make: compile files.
+  - Make run: run files.
+  - Make run(tN): Run test tN where N is 1-4. 
