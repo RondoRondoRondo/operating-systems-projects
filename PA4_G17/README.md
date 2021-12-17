@@ -12,7 +12,7 @@
   - Christian: README and other documentation.
   - Nolan: Compiled, ran, and tested the code. 
 * Any assumptions outside this document
-  - No.
+  - Nothing outside of the assumptions in the instructions. 
 * How to compile and run your program
   - Make: compile files.
   - Make run: run files.
