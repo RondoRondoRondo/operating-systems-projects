@@ -6,10 +6,12 @@
   - Christian Rondestvedt ronde021
   - Nolan Kelly kell2490
 * Whether to complete the extra task
-  - n/a for interim solution
-* Members’ individual contributions (PLAN)
-  - Our plan is to meet synchronously to complete the project. 
+  - No.
+* Individual contributions
+  -Both: Constructing of all .c files.
+  -Christian: README and other documentation.
+  -Nolan: Compiled, ran, and tested the code. 
 * Any assumptions outside this document
-  - n/a for interim solution
+  - No.
 * How to compile and run your program
-  - n/a for interim solution
+  - 
