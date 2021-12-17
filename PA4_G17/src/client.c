@@ -6,6 +6,7 @@
 #define MAX 80
 #define PORT 9001795
 #define SA struct sockaddr
+boolean isConnected = false; 
 
 //given code
 void printSyntax(){
@@ -14,10 +15,16 @@ void printSyntax(){
 }
 
 //COPIED FROM RECITATION 11 CODE
-void func(int sockfd) {
+void func(int sockfd, char * line) {
+
+    char str[chunkSize];
+    strcpy(str,line);
+    char *rest = str;
+    char *tok = strtok_r(line,",",&rest);
 
     //write all enums
-    msg_enum mt = REGISTER;
+    msg_enum mt = atoi(tok);
+
     while(mt != TERMINATE){
         if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
             perror("Cannot write");
@@ -30,7 +37,9 @@ void func(int sockfd) {
             perror("Cannot write");
             exit(3);
     }
-    
+    //close(sockfd);
+    isConnected = false;
+
     //loop until receiving TERMINATE enum
     mt = REGISTER;
     while(mt != TERMINATE){
@@ -40,19 +49,43 @@ void func(int sockfd) {
         }
         switch (mt){
             case REGISTER:
-                printf("REGISTER : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //char[] username (NULL-terminated)
+                    perror("Cannot write");
+                    exit(3);
+                }
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //char[] name (NULL-terminated)
+                    perror("Cannot write");
+                    exit(3);
+                }
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //time_t birthday
+                perror("Cannot write");
+                exit(3);
+                }
                 break;
             
             case GET_ACCOUNT_INFO:
-                printf("GET_ACCOUNT_INFO : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
             
             case TRANSACT:
-                printf("TRANSACT : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                    perror("Cannot write");
+                    exit(3);
+                }
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //float amount
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
             
             case GET_BALANCE:
-                printf("GET_BALANCE : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
 
             case ACCOUNT_INFO:
@@ -64,7 +97,10 @@ void func(int sockfd) {
                 break;
 
             case REQUEST_CASH:
-                printf("REQUEST_CASH : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //float amount
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
 
             case CASH:
@@ -72,11 +108,17 @@ void func(int sockfd) {
                 break;
 
             case ERROR:
-                printf("ERROR : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int messsage_type (the enumerated value)
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
 
             case TERMINATE:
-                printf("TERMINATE : %d\n", mt);
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //NONE
+                    perror("Cannot write");
+                    exit(3);
+                }
                 break;
         }//switch
     }//while
@@ -117,6 +159,8 @@ int main(int argc, char *argv[]){
     } else {
         printf("Connected to the server..\n"); }
 
+    isConnected = true;
+
     //TODO: Read file containing queries to the server.
     File * fp;
     char line[chunksize];
@@ -134,10 +178,11 @@ int main(int argc, char *argv[]){
     while(getline(&x, &len, fp) != -1){ //until EOF
         //specifier: "%d,%d,%s,%s,%ld,%f,%d\n"
         //TODO: Serialize data and send to server.
-        //TODO: End connection after submitting TERMINATE message.
+        func(sockfd, x);
+        //TODO: End connection after submitting TERMINATE message. // MOVE TO FUNC??
         close(sockfd); 
         //TODO: IF new messages, reconnect to server.
-        if (/*new messages */) {
+        if (isConnected == false) {
             if (connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) != 0) {
             printf("Connection with the server failed...\n");
             exit(0);
