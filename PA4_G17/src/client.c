@@ -1,4 +1,5 @@
 #include "../include/client.h"
+#include <time.h> // For recording time.
 
 //copied from lab11
 #define LOCALHOST "127.0.0.1"
@@ -93,13 +94,13 @@ int main(int argc, char *argv[]){
     int sockfd, connfd;
     struct sockaddr_in servaddr, cli;
 
-    // socket create and varification
+    // socket create and verifications
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         printf("Socket creation failed...\n");
         exit(0);
-    } else
-        printf("Socket successfully created..\n");
+    } else {
+        printf("Socket successfully created..\n"); }
     bzero(&servaddr, sizeof(servaddr));
 
     // assign IP, PORT
@@ -107,12 +108,49 @@ int main(int argc, char *argv[]){
     servaddr.sin_addr.s_addr = inet_addr(LOCALHOST);
     servaddr.sin_port = htons(PORT);
 
+    // TODO: Start record time.
+    clock_t begin = clock();
     // connect the client socket to server socket
     if (connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) != 0) {
         printf("Connection with the server failed...\n");
         exit(0);
-    } else
-        printf("Connected to the server..\n");
+    } else {
+        printf("Connected to the server..\n"); }
+
+    //TODO: Read file containing queries to the server.
+    File * fp;
+    char line[chunksize];
+    char *x = line;
+    size_t len = chunksize;
+    ssize_t read;
+
+    fp = fopen(file, "r");
+    if (fp == NULL) {
+        fprintf(stderr,"Error opening file: %s \n",file);
+        return NULL;
+    }
+    
+    //TODO: Loop to send queries to the server. 
+    while(getline(&x, &len, fp) != -1){ //until EOF
+        //specifier: "%d,%d,%s,%s,%ld,%f,%d\n"
+        //TODO: Serialize data and send to server.
+        //TODO: End connection after submitting TERMINATE message.
+        close(sockfd); 
+        //TODO: IF new messages, reconnect to server.
+        if (/*new messages */) {
+            if (connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) != 0) {
+            printf("Connection with the server failed...\n");
+            exit(0);
+            } else {
+                printf("Connected to the server..\n"); }
+        }
+    }
+    fclose(fp);
+
+    //TODO: End record time.
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Ellapsed Time: %.2f\n", time_spent);
 
     // function for chat
     func(sockfd);
@@ -122,4 +160,3 @@ int main(int argc, char *argv[]){
 
     return 0; 
 }
-
