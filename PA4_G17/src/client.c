@@ -8,6 +8,18 @@
 #define SA struct sockaddr
 boolean isConnected = false; 
 
+// helper functions
+void Register(struct message);
+void getAccountInfo(struct message);
+void transact(struct message);
+void getBalance(struct message);
+struct message readAccountInfo():
+struct message readBalance();
+void requestCash(struct message);
+void readCash();
+void sendError(struct message):
+void Terminate(struct message);
+
 //given code
 void printSyntax(){
     printf("incorrect usage syntax! \n");
