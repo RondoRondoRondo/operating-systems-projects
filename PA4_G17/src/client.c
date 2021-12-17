@@ -25,6 +25,20 @@ void func(int sockfd, char * line) {
     //write all enums
     msg_enum mt = atoi(tok);
 
+    tok = strtok_r(NULL,",",&rest);
+    int account_number = atoi(tok);
+    tok = strtok_r(NULL,",",&rest);
+    char name[64] = tok;
+    tok = strtok_r(NULL,",",&rest);
+    char username[64] = tok;
+    tok = strtok_r(NULL,",",&rest);
+    time_t birthday = tok;
+    tok = strtok_r(NULL,",",&rest);
+    float amount = atof(tok);
+    tok = strtok_r(NULL,",",&rest);
+    int num_transactions = atoi(tok);
+
+
     while(mt != TERMINATE){
         if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
             perror("Cannot write");
@@ -49,40 +63,40 @@ void func(int sockfd, char * line) {
         }
         switch (mt){
             case REGISTER:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //char[] username (NULL-terminated)
+                if (write(sockfd, &username, sizeof(username)) < 0) { //char[] username (NULL-terminated)
                     perror("Cannot write");
                     exit(3);
                 }
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //char[] name (NULL-terminated)
+                if (write(sockfd, &name, sizeof(name)) < 0) { //char[] name (NULL-terminated)
                     perror("Cannot write");
                     exit(3);
                 }
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //time_t birthday
+                if (write(sockfd, &birthday, sizeof(birthday)) < 0) { //time_t birthday
                 perror("Cannot write");
                 exit(3);
                 }
                 break;
             
             case GET_ACCOUNT_INFO:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
                     perror("Cannot write");
                     exit(3);
                 }
                 break;
             
             case TRANSACT:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
                     perror("Cannot write");
                     exit(3);
                 }
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //float amount
+                if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
                     perror("Cannot write");
                     exit(3);
                 }
                 break;
             
             case GET_BALANCE:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int account_number
+                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
                     perror("Cannot write");
                     exit(3);
                 }
@@ -97,7 +111,7 @@ void func(int sockfd, char * line) {
                 break;
 
             case REQUEST_CASH:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //float amount
+                if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
                     perror("Cannot write");
                     exit(3);
                 }
@@ -108,14 +122,14 @@ void func(int sockfd, char * line) {
                 break;
 
             case ERROR:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int messsage_type (the enumerated value)
+                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int message_type (the enumerated value)
                     perror("Cannot write");
                     exit(3);
                 }
                 break;
 
             case TERMINATE:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //NONE
+                if (write(sockfd, &, sizeof()) < 0) { //TYPE NONE ... ADD SENDING AND SIZEOF VALUE
                     perror("Cannot write");
                     exit(3);
                 }
