@@ -9,7 +9,26 @@
 boolean isConnected = false; 
 
 // helper functions
-void Register(struct message);
+void Register(int sockfd, struct message msg){
+    char username[64];
+    strcpy(username, msg.username);
+    if (write(sockfd, &username, sizeof(username)) < 0) { //char[] username (NULL-terminated)
+        perror("Cannot write");
+        exit(3);
+    }
+    char name[64];
+    strcpy(name, msg.name);
+    if (write(sockfd, &name, sizeof(name)) < 0) { //char[] name (NULL-terminated)
+        perror("Cannot write");
+        exit(3);
+    }
+    time_t birthday = msg.birthday;
+    if (write(sockfd, &birthday, sizeof(birthday)) < 0) { //time_t birthday
+    perror("Cannot write");
+    exit(3);
+    }
+}
+
 void getAccountInfo(struct message);
 void transact(struct message);
 void getBalance(struct message);

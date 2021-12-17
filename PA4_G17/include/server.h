@@ -5,5 +5,17 @@
 
 void printSyntax();
 
+struct account
+{
+    char name[MAX_STR];
+    char username[MAX_STR];
+    time_t birthday;
+    int acc_num;
+    float balance;
+};
+
+struct account accounts[MAX_ACC];
+sem_t semaphores[MAX_ACC];
+
 #endif
 
