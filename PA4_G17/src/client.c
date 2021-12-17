@@ -39,21 +39,6 @@ void func(int sockfd, char * line) {
     int num_transactions = atoi(tok);
 
 
-    while(mt != TERMINATE){
-        if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
-            perror("Cannot write");
-            exit(3);
-        }
-        mt++;
-    }
-    //Write final TERMINATE enum
-    if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
-            perror("Cannot write");
-            exit(3);
-    }
-    //close(sockfd);
-    isConnected = false;
-
     //loop until receiving TERMINATE enum
     mt = REGISTER;
     while(mt != TERMINATE){
@@ -139,12 +124,11 @@ void func(int sockfd, char * line) {
 }//func
 
 int main(int argc, char *argv[]){
-    // argument handling + given code
-    // if(argc != 4)
-    // {
-    //     printSyntax();
-    //     return 0;
-    // }
+    argument handling + given code
+    if(argc != 4) {
+        printSyntax();
+        return 0;
+    }
 
     //COPIED FROM RECITATION 11 CODE
     int sockfd, connfd;
@@ -210,9 +194,6 @@ int main(int argc, char *argv[]){
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("Ellapsed Time: %.2f\n", time_spent);
-
-    // function for chat
-    func(sockfd);
 
     // close the socket
     close(sockfd);
