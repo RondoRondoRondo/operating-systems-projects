@@ -88,11 +88,29 @@ void func(int sockfd, char * line) {
                 break;
 
             case ACCOUNT_INFO:
-                printf("ACCOUNT_INFO : %d\n", mt);
+                if (read(sockfd, &username, sizeof(username)) < 0) { // read username from server
+                    perror("cannot read");
+                    exit(4);
+                }
+                if (read(sockfd, &name, sizeof(name)) < 0) { // read name from server
+                    perror("cannot read");
+                    exit(4);
+                }
+                if (read(sockfd, &birthday, sizeof(birthday)) < 0) { // read birthday from server
+                    perror("cannot read");
+                    exit(4);
+                }
                 break;
 
             case BALANCE:
-                printf("BALANCE : %d\n", mt);
+                if (read(sockfd, &account_number, sizeof(account_number)) < 0) { // read account_number from server
+                    perror("cannot read");
+                    exit(4);
+                }
+                if (read(sockfd, &balance, sizeof(balance)) < 0) { // read balance from server
+                    perror("cannot read");
+                    exit(4);
+                }
                 break;
 
             case REQUEST_CASH:
@@ -103,13 +121,20 @@ void func(int sockfd, char * line) {
                 break;
 
             case CASH:
-                printf("CASH : %d\n", mt);
+                if (read(sockfd, &cash, sizeof(cash)) < 0) { // read cash from server 
+                    perror("cannot read");
+                    exit(4);
+                }
                 break;
 
             case ERROR:
                 if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int message_type (the enumerated value)
                     perror("Cannot write");
                     exit(3);
+                }
+                if (read(sockfd, &mt, sizeof(msg_enum)) < 0) { // read message_type from server
+                    perror("cannot read");
+                    exit(4);
                 }
                 break;
 
