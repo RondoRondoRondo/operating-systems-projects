@@ -28,10 +28,33 @@ void Register(int sockfd, struct message msg){
     exit(3);
     }
 }
-
-void getAccountInfo(struct message);
-void transact(struct message);
-void getBalance(struct message);
+void getAccountInfo(struct message){
+    int account_number = msg.account_number;
+    if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
+        perror("Cannot write");
+        exit(3);
+    }
+}
+void transact(struct message){
+    int account_number = msg.account_number;
+    if (write(sockfd, &username, sizeof(username)) < 0) { //int account_number
+        perror("Cannot write");
+        exit(3);
+    }
+    float amount = msg.amount;
+    if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
+        perror("Cannot write");
+        exit(3);
+    }
+}
+void getBalance(struct message){
+    char name[64];
+    strcpy(name, msg.name);
+    if (write(sockfd, &name, sizeof(name)) < 0) { //char[] name (NULL-terminated)
+        perror("Cannot write");
+        exit(3);
+    }
+}
 struct message readAccountInfo():
 struct message readBalance();
 void requestCash(struct message);
