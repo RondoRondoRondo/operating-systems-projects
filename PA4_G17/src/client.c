@@ -9,6 +9,14 @@
 boolean isConnected = false; 
 
 // helper functions
+struct message msg1;
+msg1.account_number = atoi(tok);
+strcpy(msg1.name, tok);
+...
+Once msg1 fields have been filled by the tokens:
+(In case REGISTER):
+Register(sockfd, msg1);
+
 void Register(int sockfd, struct message msg){
     char username[64];
     strcpy(username, msg.username);
@@ -48,19 +56,30 @@ void transact(struct message){
     }
 }
 void getBalance(struct message){
-    char name[64];
-    strcpy(name, msg.name);
-    if (write(sockfd, &name, sizeof(name)) < 0) { //char[] name (NULL-terminated)
+    int account_number = msg.account_number;
+    if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
     }
 }
-struct message readAccountInfo():
+struct message readAccountInfo();
 struct message readBalance();
-void requestCash(struct message);
-void readCash();
-void sendError(struct message):
-void Terminate(struct message);
+void requestCash(struct message){
+
+}
+void readCash(){
+    float amount = msg.amount;
+    if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
+        perror("Cannot write");
+        exit(3);
+    }
+}
+void sendError(struct message){
+
+}
+void Terminate(struct message){
+    
+}
 
 //given code
 void printSyntax(){
