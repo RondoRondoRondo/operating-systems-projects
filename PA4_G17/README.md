@@ -17,3 +17,4 @@
   - Make: compile files.
   - Make run: run files.
   - Make run(tN): Run test tN where N is 1-4. 
+  - Make test: run tests. 
