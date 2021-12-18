@@ -9,13 +9,14 @@
 boolean isConnected = false; 
 
 // helper functions
-struct message msg1;
+/*struct message msg1;
 msg1.account_number = atoi(tok);
 strcpy(msg1.name, tok);
 ...
 Once msg1 fields have been filled by the tokens:
 (In case REGISTER):
 Register(sockfd, msg1);
+*/
 
 void Register(int sockfd, struct message msg){
     char username[64];
@@ -36,14 +37,14 @@ void Register(int sockfd, struct message msg){
     exit(3);
     }
 }
-void getAccountInfo(struct message){
+void getAccountInfo(int sockfd, struct message){
     int account_number = msg.account_number;
     if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
     }
 }
-void transact(struct message){
+void transact(int sockfd, struct message){
     int account_number = msg.account_number;
     if (write(sockfd, &username, sizeof(username)) < 0) { //int account_number
         perror("Cannot write");
@@ -55,31 +56,82 @@ void transact(struct message){
         exit(3);
     }
 }
-void getBalance(struct message){
+void getBalance(int sockfd, struct message){
     int account_number = msg.account_number;
     if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
     }
 }
-struct message readAccountInfo();
-struct message readBalance();
-void requestCash(struct message){
-
+struct message readAccountInfo(int sockfd){
+    char username[64];
+    memset(username, 0, sizeof(username));
+    if (read(sockfd, &username, sizeof(username)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    char name[64];
+    memset(name, 0, sizeof(name));
+    if (read(sockfd, &name, sizeof(name)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    time_t birthday;
+    if (read(sockfd, &birthday, sizeof(birthday)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    struct message{
+        char * username;
+        char * name;
+        time_t birthday;
+    } 
+    return message;
 }
-void readCash(){
-    float amount = msg.amount;
+struct message readBalance(int sockfd){
+    int account_number;
+    memset(account_number, 0, sizeof(account_number));
+    if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    float balance;
+    memset(balance, 0, sizeof(balance));
+    if (read(sockfd, &balance, sizeof(balance)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    return balance;
+}
+void requestCash(int sockfd, float amount){
+    float amount;
     if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
         perror("Cannot write");
         exit(3);
     }
 }
-void sendError(struct message){
+void readCash(int sockfd){
+    float cash = msg.cash;
+    if (read(sockfd, &cash, sizeof(cash)) < 0) { //float cash
+        perror("Cannot write");
+        exit(3);
+    }
+}
+void sendError(int sockfd, struct message){
+    msg_enum mt = msg.message; 
+    if (write(sockfd, &mt, sizeof(mt)) < 0) { //float amount
+        perror("Cannot write");
+        exit(3);
+    }
+}
+void Terminate(int sockfd, struct message){
+    //ExpResp: NONE
+    //DataValues: NONE
+}
 
-}
-void Terminate(struct message){
-    
-}
+//////////////////////////////////////////////////////////////////////////
+///////////////////////////Rest of Code Below/////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 //given code
 void printSyntax(){
@@ -98,6 +150,7 @@ void func(int sockfd, char * line) {
     //write all enums
     msg_enum mt = atoi(tok);
 
+    // message struct
     tok = strtok_r(NULL,",",&rest);
     int account_number = atoi(tok);
     tok = strtok_r(NULL,",",&rest);
@@ -121,101 +174,53 @@ void func(int sockfd, char * line) {
         }
         switch (mt){
             case REGISTER:
-                if (write(sockfd, &username, sizeof(username)) < 0) { //char[] username (NULL-terminated)
-                    perror("Cannot write");
-                    exit(3);
-                }
-                if (write(sockfd, &name, sizeof(name)) < 0) { //char[] name (NULL-terminated)
-                    perror("Cannot write");
-                    exit(3);
-                }
-                if (write(sockfd, &birthday, sizeof(birthday)) < 0) { //time_t birthday
-                perror("Cannot write");
-                exit(3);
-                }
+                Register(sockfd, msg1);
+                struct message temp = readAccountInfo(sockfd);
                 break;
             
             case GET_ACCOUNT_INFO:
-                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
-                    perror("Cannot write");
-                    exit(3);
-                }
+                getAccountInfo(sockfd, msg1);
+                //TODO
                 break;
             
             case TRANSACT:
-                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
-                    perror("Cannot write");
-                    exit(3);
-                }
-                if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
-                    perror("Cannot write");
-                    exit(3);
-                }
+                transact(sockfd, msg1);
+                //TODO
                 break;
             
             case GET_BALANCE:
-                if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
-                    perror("Cannot write");
-                    exit(3);
-                }
+                getBalance(sockfd, msg1);
+                //TODO
                 break;
 
             case ACCOUNT_INFO:
-                if (read(sockfd, &username, sizeof(username)) < 0) { // read username from server
-                    perror("cannot read");
-                    exit(4);
-                }
-                if (read(sockfd, &name, sizeof(name)) < 0) { // read name from server
-                    perror("cannot read");
-                    exit(4);
-                }
-                if (read(sockfd, &birthday, sizeof(birthday)) < 0) { // read birthday from server
-                    perror("cannot read");
-                    exit(4);
-                }
+                readAccountInfo(sockfd, msg1);
+                //TODO
                 break;
 
             case BALANCE:
-                if (read(sockfd, &account_number, sizeof(account_number)) < 0) { // read account_number from server
-                    perror("cannot read");
-                    exit(4);
-                }
-                if (read(sockfd, &balance, sizeof(balance)) < 0) { // read balance from server
-                    perror("cannot read");
-                    exit(4);
-                }
+                readBalance(sockfd, msg1);
+                //TODO
                 break;
 
             case REQUEST_CASH:
-                if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
-                    perror("Cannot write");
-                    exit(3);
-                }
+                requestCash(sockfd, msg1);
+                //TODO
                 break;
 
             case CASH:
-                if (read(sockfd, &cash, sizeof(cash)) < 0) { // read cash from server 
-                    perror("cannot read");
-                    exit(4);
-                }
+                readCash(sockfd, msg1);
+                //TODO
                 break;
 
             case ERROR:
-                if (write(sockfd, &mt, sizeof(msg_enum)) < 0) { //int message_type (the enumerated value)
-                    perror("Cannot write");
-                    exit(3);
-                }
-                if (read(sockfd, &mt, sizeof(msg_enum)) < 0) { // read message_type from server
-                    perror("cannot read");
-                    exit(4);
-                }
+                sendError(sockfd, msg1);
+                //TODO
                 break;
 
             case TERMINATE:
-                if (write(sockfd, &, sizeof()) < 0) { //TYPE NONE ... ADD SENDING AND SIZEOF VALUE
-                    perror("Cannot write");
-                    exit(3);
-                }
+                Terminate(sockfd, msg1);
+                //TODO
                 break;
         }//switch
     }//while
