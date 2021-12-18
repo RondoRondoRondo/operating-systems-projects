@@ -222,7 +222,11 @@ void func(int sockfd, char * line) {
         case TRANSACT:
             getBalance(sockfd, msg1);
             float temp = readBalance(sockfd);
-            if ((temp + msg1.cash >= 0) && (theCash + msg1.cash >= 0)) {
+            if (temp + msg1.cash >= 0) {
+                if (theCash + msg1.cash < 0) {
+                    requestCash(sockfd, msg1.cash);
+                    readCash(sockfd);
+                }
                 transact(sockfd, msg1);
                 readBalance(sockfd);
             }
