@@ -4,9 +4,9 @@
 //copied from lab11
 #define LOCALHOST "127.0.0.1"
 #define MAX 80
-#define PORT 9001795
+#define PORT 9796
 #define SA struct sockaddr
-boolean isConnected = false; 
+bool isConnected = false; 
 float theCash = 0.0;
 
 // helper functions
@@ -28,7 +28,7 @@ void Register(int sockfd, struct message msg){
         exit(3);
     }
     time_t birthday = msg.birthday;
-    if (write(sockfd, &birthday, sizeof(birthday)) < 0) { //time_t birthday
+    if (write(sockfd, &birthday, 8) < 0) { //time_t birthday
     perror("Cannot write");
     exit(3);
     }
@@ -39,7 +39,7 @@ void getAccountInfo(int sockfd, struct message msg){
         perror("Cannot write");
         exit(3);
     }
-    int account_number = msg.account_number;
+    int account_number = msg.acc_num;
     if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
@@ -47,28 +47,34 @@ void getAccountInfo(int sockfd, struct message msg){
     return;
 }
 void transact(int sockfd, struct message msg){
+    //printf("Sending TRANSACT \n");
     if (write(sockfd, &msg.msg_type, sizeof(msg.msg_type)) < 0) { //first four bytes send
         perror("Cannot write");
         exit(3);
     }
-    int account_number = msg.account_number;
-    if (write(sockfd, &username, sizeof(username)) < 0) { //int account_number
+    //printf("In transact: wrote message type %d, \n", msg.msg_type);
+    int account_number = msg.acc_num;
+    if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
     }
-    float amount = msg.amount;
+    //printf("In transact: wrote account_number %d, \n", account_number);
+    float amount = msg.cash;
     if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
         perror("Cannot write");
         exit(3);
     }
+    //printf("In transact: wrote amount%.2f, \n", amount);
+    theCash += msg.cash;
     return;
 }
 void getBalance(int sockfd, struct message msg){
-    if (write(sockfd, &msg.msg_type, sizeof(msg.msg_type)) < 0) { //first four bytes send
+    msg_enum mttt = GET_BALANCE;
+    if (write(sockfd, &mttt, sizeof(mttt)) < 0) { //first four bytes send
         perror("Cannot write");
         exit(3);
     }
-    int account_number = msg.account_number;
+    int account_number = msg.acc_num;
     if (write(sockfd, &account_number, sizeof(account_number)) < 0) { //int account_number
         perror("Cannot write");
         exit(3);
@@ -105,36 +111,30 @@ struct message readAccountInfo(int sockfd){
     msgt.birthday = birthday;
     return msgt;
 }
-struct message readBalance(int sockfd){
+float readBalance(int sockfd){
     msg_enum temp = 0;
     if (read(sockfd, &temp, sizeof(temp)) < 0) { //first four bytes read
         perror("Cannot read");
         exit(4);
     }
-    int account_number;
-    memset(account_number, 0, sizeof(account_number));
+    int account_number = 0;
     if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
             perror("cannot read");
             exit(4);
     }
-    float balance;
-    memset(balance, 0, sizeof(balance));
+    float balance = 0.0;
     if (read(sockfd, &balance, sizeof(balance)) < 0) {
             perror("cannot read");
             exit(4);
     }
-    struct message msgt;
-    msgt.msg_type = temp;
-    msgt.acc_num = account_number;
-    msgt.balance = balance;
-    return msgt;
+    return balance;
 }
 void requestCash(int sockfd, float amount){
-    if (write(sockfd, &msg.msg_type, sizeof(msg.msg_type)) < 0) { //first four bytes send
+    msg_enum temp = REQUEST_CASH;
+    if (write(sockfd, &temp, sizeof(temp)) < 0) { //first four bytes send
         perror("Cannot write");
         exit(3);
     }
-    float amount;
     if (write(sockfd, &amount, sizeof(amount)) < 0) { //float amount
         perror("Cannot write");
         exit(3);
@@ -161,13 +161,14 @@ void sendError(int sockfd, struct message msg){
         perror("Cannot write");
         exit(3);
     }
+    //printf("writing error num: %d to server\n", msg.msg_type);
     if (write(sockfd, &msg.msg_type, sizeof(msg.msg_type)) < 0) { //message_type mt
         perror("Cannot write");
         exit(3);
     }
     return;
 }
-void Terminate(int sockfd, struct message){
+void Terminate(int sockfd){
     msg_enum mt = TERMINATE;
     if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
         perror("Cannot write");
@@ -189,12 +190,7 @@ void printSyntax(){
 //COPIED FROM RECITATION 11 CODE
 void func(int sockfd, char * line) {
 
-    char str[chunkSize];
-    strcpy(str,line);
-    char *rest = str;
     char *tok = strtok(line,",");
-
-    //write all enums
 
     // message struct
     struct message msg1;
@@ -206,24 +202,30 @@ void func(int sockfd, char * line) {
     tok = strtok(NULL,",");
     strcpy(msg1.username, tok);
     tok = strtok(NULL,",");
-    msg1.birthday = tok;
+    msg1.birthday = atol(tok);
+    //printf("Bday: %ld\n", msg1.birthday);
     tok = strtok(NULL,",");
-    msg1.amount = atof(tok);
+    msg1.cash = atof(tok);
     tok = strtok(NULL,",");
     msg1.num_tx = atoi(tok);
     
     //swtich cases
     switch (msg1.msg_type){
         case REGISTER:
+            //printf("Sending Register \n");
             Register(sockfd, msg1);
-            struct message temp = readBalance(sockfd);
+            float temp_bal = readBalance(sockfd);
+            //printf("Received balance: %.2f\n", temp_bal);
             break;
-       
+
         case TRANSACT:
+            //printf("case TRANSACT \n");
             getBalance(sockfd, msg1);
-            float temp = readBalance(sockfd);
-            if (temp + msg1.cash >= 0) {
+            float tempy = readBalance(sockfd);
+            //printf("Received balance: %.2f \n", tempy);
+            if (tempy + msg1.cash >= 0) {
                 if (theCash + msg1.cash < 0) {
+                    //printf("Asking for cash \n");
                     requestCash(sockfd, msg1.cash);
                     readCash(sockfd);
                 }
@@ -233,7 +235,8 @@ void func(int sockfd, char * line) {
             break;
 
         case TERMINATE:
-            Terminate(sockfd, msg1);
+            Terminate(sockfd);
+            //printf("DISCONNECTING\n");
             isConnected = false; 
             close(sockfd);
             break;
@@ -246,7 +249,6 @@ void func(int sockfd, char * line) {
 }//func
 
 int main(int argc, char *argv[]){
-    argument handling + given code
     if(argc != 4) {
         printSyntax();
         return 0;
@@ -282,27 +284,35 @@ int main(int argc, char *argv[]){
     isConnected = true;
 
     //TODO: Read file containing queries to the server.
-    File * fp;
-    char line[chunksize];
+    FILE * fp;
+    char line[200];
     char *x = line;
-    size_t len = chunksize;
+    size_t len = 200;
     ssize_t read;
+    char path[50];
+    sprintf(path,"input/%s", argv[1]);
 
-    fp = fopen(file, "r");
+    fp = fopen(path, "r");
     if (fp == NULL) {
-        fprintf(stderr,"Error opening file: %s \n",file);
-        return NULL;
+        fprintf(stderr,"Error opening file: %s \n", path);
     }
     
     //TODO: Loop to send queries to the server. 
     while(getline(&x, &len, fp) != -1){ //until EOF
         //TODO: IF not connected && new messages, reconnect to server.
-        if (isConnected == false) {
+        if (!isConnected) {
+            sockfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (sockfd == -1) {
+                printf("Socket recreation failed...\n");
+                exit(0);
+            } else {
+                printf("Socket successfully recreated..\n"); }
             if (connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) != 0) {
             printf("Connection with the server failed...\n");
             exit(0);
             } else {
                 printf("Connected to the server..\n"); }
+            isConnected = true;
         }
         func(sockfd, x);
     }

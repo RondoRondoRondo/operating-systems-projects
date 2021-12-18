@@ -15,6 +15,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <semaphore.h>
 
 #define MAX_STR 64
 #define MAX_ACC 1023

@@ -2,7 +2,7 @@
 
 #define LOCALHOST "127.0.0.1"
 #define MAX 80
-#define PORT 9001795
+#define PORT 9796
 #define SA struct sockaddr
 
 int num_accounts;
@@ -12,12 +12,36 @@ void printSyntax(){
 }
 
 void doLogging(){
-    //TODO: wait 5 seconds
-    //TODO: iterate through the accounts array defined in server.h
-    //TODO: print account number,balance,name,username,birthday to balances.csv using "%d,%.2f,%s,%s,%ld\n” as the format
-    //notes: 1. the array is an array of structs. Said struct is defined in server.h as well. 2. The array is 1000+ long so don't iterate through all of it, stop after the last account
-    //3. I made a global variable num_accounts so only iterate through that many accounts
-}
+    FILE * fp;
+    char tempusername[64];
+    char tempname[64];
+    int tempacc;
+    float tempbal;
+    time_t tempbday;
+    while(1){
+        sleep(5);
+        fp = fopen("output/balances.csv", "w");
+        if(fp == NULL){
+            fprintf(stderr,"Error opening balances.csv\n");
+            return;
+        }
+        for(int i = 0; i < num_accounts; i++){
+            sem_wait(&semaphores[i]);
+            tempacc = i;
+            tempbal = accounts[i].balance;
+            strcpy(tempusername,accounts[i].username);
+            strcpy(tempname,accounts[i].name);
+            tempbday = accounts[i].birthday;
+            sem_post(&semaphores[i]);
+            //printf("Writing a new log for account %d\n",i);
+            fprintf(fp, "%d,%.2f,%s,%s,%ld\n", tempacc,tempbal,tempusername,tempname,tempbday);
+        }
+        fclose(fp);
+    }
+
+    
+    return;
+}//doLogging
 
 
 // HELPER FUNCTIONS
@@ -27,6 +51,7 @@ void doLogging(){
 //     
 
 int readRegister(int sockfd){
+    //printf("Executing readRegister \n");
     //acquire mutex for global num_accounts counter, save the value and increment
     sem_wait(&sem_num);
     int tempnum = num_accounts;
@@ -48,11 +73,11 @@ int readRegister(int sockfd){
             exit(4);
     }
     time_t birthday;
-    if (read(sockfd, &birthday, sizeof(birthday)) < 0) {
+    if (read(sockfd, &birthday, 8) < 0) {
             perror("cannot read");
             exit(4);
     }
-
+    //printf("Bday: %ld\n", birthday);
     //initialize the mutex for the account
     sem_init(&semaphores[tempnum], 0, 1);
 
@@ -81,21 +106,26 @@ int readGetAccountInfo(int sockfd){
 
 
 int readTransact(int sockfd){
+    //printf("Executing readTransact\n");
     int account_number = 0;
     if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
             perror("cannot read");
+            printf("failed \n");
             exit(4);
     }
+    //printf("Check 1 \n");
     float amount = 0.0;
     if (read(sockfd, &amount, sizeof(amount)) < 0) {
+            printf("Check 2 \n");
             perror("cannot read");
             exit(4);
     }
-
+    //printf("amount read 380367 = %.2f \n", amount);
     sem_wait(&semaphores[account_number]);
+    //printf("Check 2 \n");
     accounts[account_number].balance += amount;
     sem_post(&semaphores[account_number]);
-
+    //printf("readTransact executed \n");
     return account_number;
 
 
@@ -103,6 +133,7 @@ int readTransact(int sockfd){
 
 
 int readGetBalance(int sockfd){
+    //printf("Executing readGetBalance\n");
     int account_number = 0;
     if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
             perror("cannot read");
@@ -137,6 +168,7 @@ void sendAccountInfo(int sockfd, int account){
 }
 
 void sendBalance(int sockfd, int account_num){
+    //printf("Executing sendBalance\n");
     msg_enum mt = BALANCE;
     if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
         perror("Cannot write");
@@ -146,7 +178,9 @@ void sendBalance(int sockfd, int account_num){
         perror("Cannot write");
         exit(3);
     }
+    sem_wait(&semaphores[account_num]);
     float bal = accounts[account_num].balance;
+    sem_post(&semaphores[account_num]);
     if (write(sockfd, &bal, sizeof(bal)) < 0) { //first four bytes send
         perror("Cannot write");
         exit(3);
@@ -155,6 +189,7 @@ void sendBalance(int sockfd, int account_num){
 }
 
 float readRequestCash(int sockfd){
+    //rintf("Executing readRequestCash\n");
     float amount = 0.0;
     if (read(sockfd, &amount, sizeof(amount)) < 0) {
             perror("cannot read");
@@ -165,6 +200,7 @@ float readRequestCash(int sockfd){
 }//readRequestCash
 
 void sendCash(int sockfd, float amount){
+    //printf("Executing sendCash\n");
     msg_enum mt = CASH;
     if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
         perror("Cannot write");
@@ -178,13 +214,13 @@ void sendCash(int sockfd, float amount){
 }
 
 
-void readError(int sock){
+void readError(int sockfd){
     int message_type = 0;
     if (read(sockfd, &message_type, sizeof(message_type)) < 0) {
             perror("cannot read");
             exit(4);
     }
-    printf("Error: message %d was received by server", message_type);
+    //printf("Error: message %d was received by server", message_type);
     return;
 }//readError
 
@@ -193,54 +229,42 @@ void readError(int sock){
 void func(void *arg) {
     // cast arg to client socket (sockfd)
     int sockfd = *(int *) arg;
-    
-    int account_number;
-    // char name[64];
-    // char username[64];
-    // float cash, balance;
-    // time_t birthday;
-
+    //printf("Func reached\n");
     // parse each query received and reply with the appropriate response.
     msg_enum mt = REGISTER;
+    int account_number;
+    float temp_amount;
     while(mt != TERMINATE){
         if (read(sockfd, &mt, sizeof(msg_enum)) < 0) {
-            perror("cannot read");
+            perror("cannot read in func");
             exit(4);
         }
-        
-
-        //printf("Enum received: %d\n", mt);
+        //printf("Message received: %d\n", mt);
         switch (mt){
             case REGISTER:
-                int account_number = readRegister(sockfd);
+                account_number = readRegister(sockfd);
                 sendBalance(sockfd, account_number);
                 break;
             case GET_ACCOUNT_INFO:
-                printf("GET_ACCOUNT_INFO : %d\n", mt); 
+                account_number = readGetAccountInfo(sockfd);
+                sendAccountInfo(sockfd, account_number);
                 break;
             case TRANSACT:
-                printf("TRANSACT : %d\n", mt); 
+                account_number = readTransact(sockfd);
+                sendBalance(sockfd, account_number);
                 break;
             case GET_BALANCE:
-                printf("GET_BALANCE : %d\n", mt);
-                break;
-            case ACCOUNT_INFO:
-                printf("ACCOUNT_INFO : %d\n", mt);
-                break;
-            case BALANCE:
-                printf("BALANCE : %d\n", mt);
+                account_number = readGetBalance(sockfd);
+                sendBalance(sockfd, account_number);
                 break;
             case REQUEST_CASH:
-                printf("REQUEST_CASH : %d\n", mt);
-                break;
-            case CASH:
-                printf("CASH : %d\n", mt);
+                temp_amount = readRequestCash(sockfd);
+                sendCash(sockfd, temp_amount);
                 break;
             case ERROR:
-                printf("ERROR : %d\n", mt);
+                readError(sockfd);
                 break;
             case TERMINATE:
-                printf("TERMINATE : %d\n", mt);
                 break;
         }//switch
         
@@ -248,11 +272,12 @@ void func(void *arg) {
 
     free(arg);
 
+    return;
+
 }//func
 
 
 int main(int argc, char *argv[]){
-    argument handling
     if(argc != 4)
     {
         printSyntax();
@@ -268,6 +293,11 @@ int main(int argc, char *argv[]){
     // threads should be able to modify the balance immediately before and after an account is logged)
     // to perform logging of all account balances to the output file balances.csv with each line being
     // account number,balance,name,username,birthday in the format %d,%.2f,%s,%s,%ld\n
+    pthread_t logtid;
+    if(pthread_create(&logtid, NULL, doLogging, NULL) != 0) {
+        printf("Log Thread failed to create\n");
+    }
+    printf("Log Thread created successfully\n");
 
     //initialize mutex for num_accounts global variable and the variable itself
     sem_init(&sem_num, 0, 1);
@@ -325,13 +355,13 @@ int main(int argc, char *argv[]){
             printf("Server accept the client...\n");
 
         if(pthread_create(&tid[thread_idx], NULL, func, (void *) connfd) != 0) {
-            printf("Thread %d failed to create\n", count);
+            printf("Thread %d failed to create\n", thread_idx);
         }
-        printf("Thread created successfully: %d\n", count);
+        printf("Thread created successfully: %d\n", thread_idx);
         thread_idx++;
     }
     
-
+    printf("Escaped while loop");
     // After chatting close the socket
     close(sockfd);
 
