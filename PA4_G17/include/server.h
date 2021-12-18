@@ -16,6 +16,7 @@ struct account
 
 struct account accounts[MAX_ACC];
 sem_t semaphores[MAX_ACC];
+sem_t sem_num;
 
 #endif
 

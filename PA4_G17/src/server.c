@@ -19,18 +19,188 @@ void doLogging(){
     //3. I made a global variable num_accounts so only iterate through that many accounts
 }
 
+
+// HELPER FUNCTIONS
+//  
+//   
+//    
+//     
+
+int readRegister(int sockfd){
+    //acquire mutex for global num_accounts counter, save the value and increment
+    sem_wait(&sem_num);
+    int tempnum = num_accounts;
+    num_accounts++;
+    sem_post(&sem_num);
+
+
+    //read bytes
+    char username[64];
+    memset(username, 0, sizeof(username));
+    if (read(sockfd, username, sizeof(username)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    char name[64];
+    memset(name, 0, sizeof(name));
+    if (read(sockfd, name, sizeof(name)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    time_t birthday;
+    if (read(sockfd, &birthday, sizeof(birthday)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+
+    //initialize the mutex for the account
+    sem_init(&semaphores[tempnum], 0, 1);
+
+    //acquire mutex for this new account and fill in the fields
+    sem_wait(&semaphores[tempnum]);
+    strcpy(accounts[tempnum].username,username);
+    strcpy(accounts[tempnum].name, name);
+    accounts[tempnum].birthday = birthday;
+    sem_post(&semaphores[tempnum]);
+
+    return tempnum; //return the number of the account just created for use in sendBalance
+
+}//readRegister
+
+
+
+int readGetAccountInfo(int sockfd){
+    int temp = 0;
+    if (read(sockfd, &temp, sizeof(temp)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+
+    return temp;
+}//readGetAccountInfo
+
+
+int readTransact(int sockfd){
+    int account_number = 0;
+    if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    float amount = 0.0;
+    if (read(sockfd, &amount, sizeof(amount)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+
+    sem_wait(&semaphores[account_number]);
+    accounts[account_number].balance += amount;
+    sem_post(&semaphores[account_number]);
+
+    return account_number;
+
+
+}//readTransact
+
+
+int readGetBalance(int sockfd){
+    int account_number = 0;
+    if (read(sockfd, &account_number, sizeof(account_number)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+
+    return account_number;
+}//readGetBalance
+
+void sendAccountInfo(int sockfd, int account){
+    msg_enum mt = ACCOUNT_INFO;
+    if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    char temp[64];
+    strcpy(temp,accounts[account].username);
+    if (write(sockfd, &temp, sizeof(temp)) < 0) { //message_type mt
+        perror("Cannot write");
+        exit(3);
+    }
+    strcpy(temp, accounts[account].name);
+    if (write(sockfd, &temp, sizeof(temp)) < 0) { //message_type mt
+        perror("Cannot write");
+        exit(3);
+    }
+    if (write(sockfd, &accounts[account].birthday, sizeof(accounts[account].birthday)) < 0) { //message_type mt
+        perror("Cannot write");
+        exit(3);
+    }
+    return;
+}
+
+void sendBalance(int sockfd, int account_num){
+    msg_enum mt = BALANCE;
+    if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    if (write(sockfd, &account_num, sizeof(account_num)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    float bal = accounts[account_num].balance;
+    if (write(sockfd, &bal, sizeof(bal)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    return;
+}
+
+float readRequestCash(int sockfd){
+    float amount = 0.0;
+    if (read(sockfd, &amount, sizeof(amount)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+
+    return amount;
+}//readRequestCash
+
+void sendCash(int sockfd, float amount){
+    msg_enum mt = CASH;
+    if (write(sockfd, &mt, sizeof(mt)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    if (write(sockfd, &amount, sizeof(amount)) < 0) { //first four bytes send
+        perror("Cannot write");
+        exit(3);
+    }
+    return;
+}
+
+
+void readError(int sock){
+    int message_type = 0;
+    if (read(sockfd, &message_type, sizeof(message_type)) < 0) {
+            perror("cannot read");
+            exit(4);
+    }
+    printf("Error: message %d was received by server", message_type);
+    return;
+}//readError
+
+
 // Function designed for chat between client and server.
 void func(void *arg) {
     // cast arg to client socket (sockfd)
     int sockfd = *(int *) arg;
     
-    int account_number, amount;
-    char name[64];
-    char username[64];
-    float cash, balance;
-    time_t birthday;
+    int account_number;
+    // char name[64];
+    // char username[64];
+    // float cash, balance;
+    // time_t birthday;
 
-    // A worker thread will parse each query received and reply with the appropriate response.
+    // parse each query received and reply with the appropriate response.
     msg_enum mt = REGISTER;
     while(mt != TERMINATE){
         if (read(sockfd, &mt, sizeof(msg_enum)) < 0) {
@@ -42,14 +212,8 @@ void func(void *arg) {
         //printf("Enum received: %d\n", mt);
         switch (mt){
             case REGISTER:
-                sem_init(&semaphores[num_accounts], 0, 1);
-                //TODO: read the next bytes into the above variables
-                //TODO: if changing the balance, signal a yet-to-be-created condition variable for the log thread?
-                sem_wait(&semaphores[account_number]);
-                //TODO: initialize the struct at accounts[account_number] to the data we just received.
-                sem_post(&semaphores[account_number]);
-                //TODO: write back the appropriate return message, which for this is BALANCE
-                num_accounts++; 
+                int account_number = readRegister(sockfd);
+                sendBalance(sockfd, account_number);
                 break;
             case GET_ACCOUNT_INFO:
                 printf("GET_ACCOUNT_INFO : %d\n", mt); 
@@ -78,16 +242,13 @@ void func(void *arg) {
             case TERMINATE:
                 printf("TERMINATE : %d\n", mt);
                 break;
-        }
+        }//switch
         
-        if (write(sockfd, &mt, sizeof(msg_enum)) < 0) {
-            perror("Cannot write");
-            exit(3);
-        }
-    }
+    }//while not terminate
 
-    printf("Everything received");
-}
+    free(arg);
+
+}//func
 
 
 int main(int argc, char *argv[]){
@@ -108,10 +269,14 @@ int main(int argc, char *argv[]){
     // to perform logging of all account balances to the output file balances.csv with each line being
     // account number,balance,name,username,birthday in the format %d,%.2f,%s,%s,%ld\n
 
-    //CREATE SOCKET AND BEGIN LISTENING TO IT
-    int sockfd, connfd, len;
-    struct sockaddr_in servaddr, cli;
+    //initialize mutex for num_accounts global variable and the variable itself
+    sem_init(&sem_num, 0, 1);
     num_accounts = 0;
+
+    //CREATE SOCKET AND BEGIN LISTENING TO IT
+    int sockfd, len;
+    struct sockaddr_in servaddr, cli;
+    
 
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -147,20 +312,23 @@ int main(int argc, char *argv[]){
     // the server will create a worker thread which will handle the connection (pass it the connection’s file
     // descriptor) and return to listening on the socket. A worker thread will parse each query received
     // and reply with the appropriate response.
-    pthread_t tid;    
+    pthread_t tid[10];
+    int thread_idx = 0;    
     while(1) {
         // Accept the data packet from client and verification
-        connfd = accept(sockfd, (SA *) &cli, &len);
+        int *connfd = (int *) malloc(sizeof(int));
+        *connfd = accept(sockfd, (SA *) &cli, &len);
         if (connfd < 0) {
             printf("Server accept failed...\n");
             exit(0);
         } else
             printf("Server accept the client...\n");
 
-        if(pthread_create(&tid, NULL, func, (void *) &connfd) != 0) {
+        if(pthread_create(&tid[thread_idx], NULL, func, (void *) connfd) != 0) {
             printf("Thread %d failed to create\n", count);
         }
         printf("Thread created successfully: %d\n", count);
+        thread_idx++;
     }
     
 
